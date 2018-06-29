@@ -52,50 +52,55 @@ gen_value(void)
                         int_rnd = gen_unzero_index();
                     }
 				}
+                
 				for (size_t z = 0; z < gen_unzero_index()*(rand()%10); ++z)
-				{
-					int_rnd ^= gen_unzero_index();
-                   // int_rnd ^= gen_unzero_index();
-                   
-				}
-                for (size_t i = 0; i < (gen_unzero_index() % probability)+1 ;++i)
+                    int_rnd ^= gen_unzero_index();
+				
+                
+                for (size_t j = 0; j < (gen_unzero_index() % probability)+1 ;++j)
                 {
-                    int replicate = replication(int_rnd,gen_unzero_index(),i,gen_unzero_index())+1;
-                    int result_of_operations = shift(int_rnd,replicate);
+                    int replicate = replication(int_rnd,gen_unzero_index(),j,gen_unzero_index())+1;
+                    int result_of_operations = int_rnd ^ replicate;//shift(int_rnd,replicate);
 					if (result_of_operations < 0)
 					{
 					//	__asm{nop }
-						result_of_operations = result_of_operations * -1;
+						result_of_operations = result_of_operations * (-1);
 					}
-                    result.push_back(result_of_operations);
+                    //result.push_back(result_of_operations);
                     replicate = replication(int_rnd,gen_unzero_index(),i,gen_unzero_index());
-                    result_of_operations = shift(int_rnd,replicate);
+                    result_of_operations = int_rnd^replicate;
 					if (result_of_operations < 0)
 					{
 						//	__asm{nop }
-						result_of_operations = result_of_operations * -1;
+						result_of_operations = result_of_operations * (-1);
 					}
 					result.push_back(result_of_operations); 
                 }
               }
-	}
-      //  for (size_t i =0;i<result.size();++i)
-	//	{
-	//		printf("result[%d] = %d\n",i,result[i]);   
-     //   }
+	debug(0);
+    }
+    
+
+ 
         std::rotate(result.begin(), result.begin() + (result.size() / gen_unzero_index()), result.end());
         std::random_shuffle(result.begin(), result.end());
         std::rotate(result.begin(), result.begin() + (result.size() / gen_unzero_index()), result.end());
         std::random_shuffle(result.begin(),result.end());
-        printf("res_sz = %d\n",result.size());
+   debug(1);
+ 
+       printf("res_sz = %d\n",result.size());
+       calculation();
         printf("set_sz = %d\n",set_result.size());
 
 		recalc();
 		while (true)
 		{
-			dissolve();
-			recalc();
-			max = get_max();
+			debug(2);
+            dissolve();
+			
+            recalc();
+            debug(4);
+			ext_value max = get_max();
 			printf("====================================================================\n");
 			printf("max(%d,%d)\n", max.count, max.value);
 
@@ -107,8 +112,9 @@ gen_value(void)
 
 		
 		}
+debug(5);
+	   
 
-	
       }
   
 void
@@ -175,11 +181,11 @@ dissolve(void)
   printf ("max = (%d:%d)\n",max.count,max.value);
   size_t counter = max.count;
   
-   for(size_t i = 0 ; i < result.size() ;++ i )
+  for(size_t i = 0 ; i < result.size() ;++ i )
   {
      if ( result[i]!= max.value)
          continue;
- 
+     printf("i = %d\n",i); 
     if (counter <= average )
     {            
         printf("counter[I] = %d\n",counter);
@@ -187,57 +193,60 @@ dissolve(void)
     }
   
 
-    size_t res_x = replication(result[i],i+gen_unzero_index()%probability,counter*(gen_unzero_index()%2),1000%gen_unzero_index());
+      size_t res_x = replication(result[i],i+gen_unzero_index()%probability,counter*(gen_unzero_index()%2),1000%gen_unzero_index());
      res_x = replication(replication(res_x,result[i],shift( res_x , 30 - (gen_unzero_index()%27) ),counter),res_x,1000%gen_unzero_index(),counter - average);
      res_x = replication(shift( res_x , 30 - (gen_unzero_index()%27) ),res_x,res_x,shift( res_x , 30 - (gen_unzero_index()%27) ));
-     size_t reinit = shift( res_x , 30 - (gen_unzero_index()%27) );
-	 if (reinit != result[i])
+     size_t reinit = res_x;
+     reinit^= gen_unzero_index();//shift( res_x , 30 - (gen_unzero_index()%27) );
+	 
+     if (reinit != result[i])
 	 {
-	   result[i] = reinit;
-	   printf("[%d]res_x =%d\n", counter, result[i]);
-	 }
+       result[i] = reinit;
+	   if (result[i]<0)
+       {
+         printf("result[%d]=%d\n",i,result[i]);
+         getc(stdin);
+       }
+     }
 	 else
 	 {
 		 printf("SHITTT!!!!!!!!!!\n\n");
 		 printf("reinit:%d,result[%d]=%d\n", reinit, i, result[i]);
-		 result[i] = shift(gen_unzero_index() % 27, gen_unzero_index());
+		// reinit  = + shift(gen_unzero_index() % 27, gen_unzero_index());
+        // printf("!!!test = %d\n",test);
+         result[i] = (reinit + gen_unzero_index())^counter;
+      //   if (0>reinit)
+       //      reinit = reinit * (-1);
+             
+        // result[i] = reinit;
 		// getc(stdin);
 	 }
 	 --counter;
+debug(3); 
+  } 
 
-  }  
 }
-  /*for(size_t i = 0 ; i < uni_result.size() ;++ i )
-  {
-     if (uni_result[i].count > average)
-     {
-        printf(">>value = %d: count = %d\n",uni_result[i].value,uni_result[i].count);
-        for (size_t j = 0;j < result.size(); ++j)
-        {
-          if (result[j] == uni_result[i].value)
-          {
 
-            if (counter <= average )
-            {            
-              printf("counter[I] = %d\n",counter);
-              break;
-            }
-            int res_x = replication(result[j],i+gen_unzero_index()%probability,j*(gen_unzero_index()%2),1000%gen_unzero_index());
-            res_x = replication(replication(res_x,result[j],shift( res_x , 30 - (gen_unzero_index()%27) ),j),res_x,1000%gen_unzero_index(),j);
-            res_x = replication(shift( res_x , 30 - (gen_unzero_index()%27) ),res_x,res_x,shift( res_x , 30 - (gen_unzero_index()%27) ));
-            result[j] = shift( res_x , 30 - (gen_unzero_index()%27) );
-            printf("[%d]res_x =%d\n",counter,result[j]);
-            --counter;
-          } 
-        }
-        if (counter <= average )
-        {
-          printf("counter[II] = %d\n",counter);  
-          break;
-        }
-     }
-  } */
-//}
+void 
+ComplexGenerator::
+debug(size_t stage)
+{
+    
+ for (size_t i =0;i<result.size();++i)
+ {
+    if (result[i]<0)
+    {
+        printf("===STAGE[%d]===\n",stage);
+  
+        printf("result[%d] = %d\n",i,result[i]);   
+        printf("===============\n");
+        getc(stdin);
+    }
+  }   
+    
+    
+}
+
 
 /*void   
 ComplexGenerator::

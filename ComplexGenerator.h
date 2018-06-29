@@ -70,10 +70,13 @@ class ComplexGenerator:public AlgoGenerator,
    size_t reinit(void);
    ext_value get_max(void);
    void recalc(void);
+   void debug(size_t stage);
+
 public:
 	ComplexGenerator(size_t _probability);
     void gen_value(void);
     unsigned int gen_unzero_index(void);
+    
 };
 
 #endif
