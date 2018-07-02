@@ -145,7 +145,7 @@ public:
 	  index_ = index;
   }
 
-  unsigned int operator()(unsigned int l_arg, unsigned int r_arg) throw (std::out_of_range&)
+  unsigned int operator()(unsigned int l_arg, unsigned int r_arg) 
   {
 	 return ( operations.at(index_)->option(l_arg , r_arg)
 		 );

@@ -4,9 +4,10 @@
 #include <set>
 #include <iostream>
 #include <algorithm>
+#include <numeric>
 #include "AlgoGenerator.h"
 #include "apocalipse.h"
-
+#include "operations.h"
 
 
 
@@ -18,26 +19,7 @@ struct ext_value
     ext_value(size_t count_,int value_):count(count_),
     value(value_)
     {};
-   /* bool operator < (const ext_value& ex )
-    {
-       return (count < ex.count);
-    }
-    
-    bool operator > (const ext_value& ex )
-    {
-       return (count > ex.count);
-    }
-    
-    bool operator == (const ext_value& ex)
-    {
-       return (count == ex.count);
-    }
-    
-    bool operator !=(const ext_value& ex)
-    {
-        
-       return (count != ex.count); 
-    }*/
+
 };
  
  
@@ -56,6 +38,7 @@ struct ext_comparator
 class ComplexGenerator:public AlgoGenerator,
 	protected Apocalipse_Random
 {
+   generator gen_;
    int real_;
    int i_;
    char sign_;
@@ -71,6 +54,7 @@ class ComplexGenerator:public AlgoGenerator,
    ext_value get_max(void);
    void recalc(void);
    void debug(size_t stage);
+
 
 public:
 	ComplexGenerator(size_t _probability);

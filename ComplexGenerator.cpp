@@ -1,3 +1,4 @@
+//                           #include <algorithm>
 #include "ComplexGenerator.h"
 
 
@@ -28,6 +29,7 @@ void
 ComplexGenerator::
 gen_value(void) 
  {
+	
 	radius_ =sqrt(( real_ * real_) + (i_ * i_));
 	double cos_fi = (radius_ / i_)* PI / 180;
 	long a_c  = abs(acos(cos_fi)* (180.0 / PI));
@@ -56,11 +58,21 @@ gen_value(void)
 				for (size_t z = 0; z < gen_unzero_index()*(rand()%10); ++z)
                     int_rnd ^= gen_unzero_index();
 				
-                
-                for (size_t j = 0; j < (gen_unzero_index() % probability)+1 ;++j)
+				size_t counter = (gen_unzero_index() % probability) + 1;
+                for (size_t j = 0; j < counter ;++j)
                 {
                     int replicate = replication(int_rnd,gen_unzero_index(),j,gen_unzero_index())+1;
                     int result_of_operations = int_rnd ^ replicate;//shift(int_rnd,replicate);
+					gen_.set_index(gen_unzero_index() % 5);
+					size_t gen_res = gen_(gen_unzero_index()%10,int_rnd);
+					gen_res = gen_(gen_unzero_index() % 10, gen_res);
+					gen_.set_index(gen_unzero_index() % 5);
+					gen_res = gen_(gen_unzero_index() % 10, gen_res);
+					gen_.set_index(gen_unzero_index() % 5);
+					gen_res = gen_(gen_unzero_index() % 10, gen_res);
+
+					result_of_operations += gen_res;
+
 					if (result_of_operations < 0)
 					{
 					//	__asm{nop }
@@ -77,7 +89,7 @@ gen_value(void)
 					result.push_back(result_of_operations); 
                 }
               }
-	debug(0);
+//	debug(0);
     }
     
 
@@ -86,32 +98,30 @@ gen_value(void)
         std::random_shuffle(result.begin(), result.end());
         std::rotate(result.begin(), result.begin() + (result.size() / gen_unzero_index()), result.end());
         std::random_shuffle(result.begin(),result.end());
-   debug(1);
- 
-       printf("res_sz = %d\n",result.size());
-       calculation();
+        printf("res_sz = %d\n",result.size());
+        calculation();
         printf("set_sz = %d\n",set_result.size());
-
 		recalc();
 		while (true)
 		{
-			debug(2);
+//			debug(2);
             dissolve();
 			
             recalc();
-            debug(4);
+          //  debug(4);
 			ext_value max = get_max();
-			printf("====================================================================\n");
+		//	printf("=================]\n");
 			printf("max(%d,%d)\n", max.count, max.value);
-
+			//printf("average = %d\n",average);
 			//getc(stdin);
-			printf("====================================================================\n");
+		//	printf("=================]\n");
 
-			if ((max.count <= average)|| (average == 1))
+			if ((max.count <= average)|| (average < 2))
 				break;
 
 		
 		}
+		printf("average =%d\n", average);
 debug(5);
 	   
 
@@ -139,7 +149,7 @@ reinit(void)
        size_t counter_ = std::count(result.begin(),result.end(),*first);  
        counter += counter_;
        int test = (*first);
-       std::cout << " !!count = " << counter_ << " , val=" << test << std::endl;  
+     //  std::cout << " !!count = " << counter_ << " , val=" << test << std::endl;  
        ext_value e_v(counter_,*first);
        uni_result.push_back( e_v );
        ++first;
@@ -178,17 +188,17 @@ dissolve(void)
 {
   printf("average = %d\n",average); 
   ext_value max = get_max();
-  printf ("max = (%d:%d)\n",max.count,max.value);
+ // printf ("max = (%d:%d)\n",max.count,max.value);
   size_t counter = max.count;
   
   for(size_t i = 0 ; i < result.size() ;++ i )
   {
      if ( result[i]!= max.value)
          continue;
-     printf("i = %d\n",i); 
+  //   printf("i = %d\n",i); 
     if (counter <= average )
     {            
-        printf("counter[I] = %d\n",counter);
+      //  printf("counter[I] = %d\n",counter);
         break;
     }
   
@@ -222,7 +232,7 @@ dissolve(void)
 		// getc(stdin);
 	 }
 	 --counter;
-debug(3); 
+//debug(3); 
   } 
 
 }
@@ -231,17 +241,23 @@ void
 ComplexGenerator::
 debug(size_t stage)
 {
-    
+ printf("result.size = %d\n", result.size());
+ size_t accumulator_ = std::accumulate(result.begin(),result.end(),0);
+ printf("accumulator_ = %d\n" , accumulator_);
+ size_t average_product = accumulator_ / result.size();
+ printf("average_product = %d\n " , average_product);
+ getc(stdin);
+ 
  for (size_t i =0;i<result.size();++i)
  {
-    if (result[i]<0)
-    {
-        printf("===STAGE[%d]===\n",stage);
-  
-        printf("result[%d] = %d\n",i,result[i]);   
-        printf("===============\n");
-        getc(stdin);
-    }
+      if (result[i]>average_product)  
+      {
+		  size_t divider = gen_unzero_index() % 3;
+		  if (!divider)
+			  divider = 2;
+      result[i] = result[i] / divider;
+      }
+      printf("result[%d] = %d\n",i,result[i]);   
   }   
     
     
